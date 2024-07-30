@@ -237,8 +237,8 @@ class Jkbms_Can(Battery):
                         self.cell_count = max_cell_cnt
                         self.get_settings()
                         
-                    self.min_cell_voltage = min_cell_volt
-                    self.max_cell_voltage = max_cell_volt
+                    self.cell_min_voltage = min_cell_volt
+                    self.cell_max_voltage = max_cell_volt
 
                 elif msg.arbitration_id in self.CAN_FRAMES[self.CELL_TEMP]:
                     max_temp = unpack_from("<B", bytes([msg.data[0]]))[0] - 50
