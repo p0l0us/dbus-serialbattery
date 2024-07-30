@@ -54,10 +54,10 @@ class Jkbms_Can(Battery):
     # B2A... Silver is using 0x0XF5
     # See https://github.com/Louisvdw/dbus-serialbattery/issues/950
     CAN_FRAMES = {
-        BATT_STAT: [0x02F4, 0x02F5],
-        CELL_VOLT: [0x04F4, 0x04F5],
-        CELL_TEMP: [0x05F4, 0x05F5],
-        ALM_INFO: [0x07F4, 0x07F5],
+        BATT_STAT: [0x02F4, 0x02F5, 0x02F9],
+        CELL_VOLT: [0x04F4, 0x04F5, 0x04F9],
+        CELL_TEMP: [0x05F4, 0x05F5, 0x05F9],
+        ALM_INFO: [0x07F4, 0x07F5, 0x07F9],
     }
 
     def test_connection(self):
@@ -75,12 +75,6 @@ class Jkbms_Can(Battery):
         self.max_battery_discharge_current = MAX_BATTERY_DISCHARGE_CURRENT
         self.max_battery_voltage = MAX_CELL_VOLTAGE * self.cell_count
         self.min_battery_voltage = MIN_CELL_VOLTAGE * self.cell_count
-
-        # init the cell array add only missing Cell instances
-        missing_instances = self.cell_count - len(self.cells)
-        if missing_instances > 0:
-            for c in range(missing_instances):
-                self.cells.append(Cell(False))
 
         self.hardware_version = "JKBMS CAN " + str(self.cell_count) + " cells"
         return True
@@ -242,22 +236,17 @@ class Jkbms_Can(Battery):
                     if max_cell_cnt > self.cell_count:
                         self.cell_count = max_cell_cnt
                         self.get_settings()
-
-                    for c_nr in range(len(self.cells)):
-                        self.cells[c_nr].balance = False
-
-                    if self.cell_count == len(self.cells):
-                        self.cells[max_cell_nr - 1].voltage = max_cell_volt
-                        self.cells[max_cell_nr - 1].balance = True
-
-                        self.cells[min_cell_nr - 1].voltage = min_cell_volt
-                        self.cells[min_cell_nr - 1].balance = True
+                        
+                    self.min_cell_voltage = min_cell_volt
+                    self.max_cell_voltage = max_cell_volt
 
                 elif msg.arbitration_id in self.CAN_FRAMES[self.CELL_TEMP]:
                     max_temp = unpack_from("<B", bytes([msg.data[0]]))[0] - 50
+                    max_nr = unpack_from("<B", bytes([msg.data[1]]))[0]
                     min_temp = unpack_from("<B", bytes([msg.data[2]]))[0] - 50
-                    self.to_temp(1, max_temp if max_temp <= 100 else 100)
-                    self.to_temp(2, min_temp if min_temp <= 100 else 100)
+                    min_nr = unpack_from("<B", bytes([msg.data[3]]))[0]
+                    self.to_temp(max_nr, max_temp if max_temp <= 100 else 100)
+                    self.to_temp(min_nr, min_temp if min_temp <= 100 else 100)
                     # print(max_temp)
                     # print(min_temp)
                 elif msg.arbitration_id in self.CAN_FRAMES[self.ALM_INFO]:
