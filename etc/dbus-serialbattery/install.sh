@@ -285,7 +285,7 @@ if [ "$version" = "latest p0l0us's version" ]; then
     rm -rf /data/etc/dbus-serialbattery
 
     # copy driver
-    cp -rf /tmp/venus-os_dbus-serialbattery-$branch/etc/dbus-serialbattery/ /data/etc
+    cp -rf /tmp/dbus-serialbattery-$branch/etc/dbus-serialbattery/ /data/etc
 
     # set permissions
     chmod +x /data/etc/dbus-serialbattery/*.sh
