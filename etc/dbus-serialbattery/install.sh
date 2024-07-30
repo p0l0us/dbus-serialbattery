@@ -50,6 +50,7 @@ PS3="Select which version you want to install and enter the corresponding number
 
 # create list of versions
 version_list=(
+    "latest p0l0us's version"
     "latest release \"$latest_release_louisvdw_stable\" (louisvdw's repo, stable)"
     "latest release \"$latest_release_mrmanuel_stable\" (mr-manuel's repo, stable, most up to date)"
     "beta build \"$latest_release_louisvdw_beta\" (louisvdw's repo)"
@@ -64,6 +65,11 @@ version_list=(
 select version in "${version_list[@]}"
 do
     case $version in
+        "latest p0l0us's version")
+            echo "Selected: $version"
+            #echo "Selected number: $REPLY"
+            break
+            ;;
         "latest release \"$latest_release_louisvdw_stable\" (louisvdw's repo, stable)")
             echo "Selected: $version"
             #echo "Selected number: $REPLY"
@@ -252,6 +258,42 @@ if [ "$version" = "nightly build \"$latest_release_louisvdw_nightly\" (louisvdw'
 
 fi
 
+if [ "$version" = "latest p0l0us's version" ]; then
+
+    branch="master"
+
+    cd /tmp
+    
+    # clean already extracted folder
+    rm -rf /tmp/venus-os_dbus-serialbattery-$branch
+
+    # download driver
+    wget -O $branch.zip https://github.com/p0l0us/dbus-serialbattery/archive/refs/heads/$branch.zip
+    if [ $? -ne 0 ]; then
+        echo "Error during downloading the ZIP file. Please try again."
+        # restore config.ini
+        if [ -f "/data/etc/dbus-serialbattery_config.ini.backup" ]; then
+            mv /data/etc/dbus-serialbattery_config.ini.backup /data/etc/dbus-serialbattery/config.ini
+        fi
+        exit
+    fi
+
+    # extract archive
+    unzip -q $branch.zip
+
+    # remove old driver
+    rm -rf /data/etc/dbus-serialbattery
+
+    # copy driver
+    cp -rf /tmp/venus-os_dbus-serialbattery-$branch/etc/dbus-serialbattery/ /data/etc
+
+    # set permissions
+    chmod +x /data/etc/dbus-serialbattery/*.sh
+    chmod +x /data/etc/dbus-serialbattery/*.py
+    chmod +x /data/etc/dbus-serialbattery/service/run
+    chmod +x /data/etc/dbus-serialbattery/service/log/run
+
+fi
 
 # restore config.ini
 if [ -f "/data/etc/dbus-serialbattery_config.ini.backup" ]; then
