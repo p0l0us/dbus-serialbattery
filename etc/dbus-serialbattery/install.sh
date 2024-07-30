@@ -265,7 +265,7 @@ if [ "$version" = "latest p0l0us's version" ]; then
     cd /tmp
     
     # clean already extracted folder
-    rm -rf /tmp/venus-os_dbus-serialbattery-$branch
+    rm -rf /tmp/dbus-serialbattery-$branch
 
     # download driver
     wget -O $branch.zip https://github.com/p0l0us/dbus-serialbattery/archive/refs/heads/$branch.zip
