@@ -1,4 +1,4 @@
-This fork optimise the original project for JK Canbus BMS. Currently works with the B2A... seilver version.
+This fork optimise the original project for JK Canbus BMS. Currently works with the B2A... silver version.
 
 # dbus-serialbattery
 This is a driver for Venus OS devices (any GX device sold by Victron or a Raspberry Pi running the Venus OS image).
